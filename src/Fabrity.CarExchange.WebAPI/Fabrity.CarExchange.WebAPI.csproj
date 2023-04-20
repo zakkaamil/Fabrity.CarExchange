@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Fabrity.CarExchange.DataAccess\Fabrity.CarExchange.DataAccess.csproj" />
+    <ProjectReference Include="..\Fabrity.CarExchange.Services\Fabrity.CarExchange.Services.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,10 +1,13 @@
 using Fabrity.CarExchange.DataAccess.Interfaces;
 using Fabrity.CarExchange.DataAccess.Repositories;
+using Fabrity.CarExchange.Services.Interfaces;
+using Fabrity.CarExchange.Services.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddSingleton<ICarsRepository, InMemoryCarsRepository>();
+builder.Services.AddScoped<ICarsService, CarsService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -1,4 +1,4 @@
-﻿namespace Fabrity.CarExchange.WebAPI.Dto
+﻿namespace Fabrity.CarExchange.Services.Dto
 {
     public class CarDto
     {

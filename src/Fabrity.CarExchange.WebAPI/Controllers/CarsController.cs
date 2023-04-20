@@ -1,7 +1,9 @@
 ﻿using Fabrity.CarExchange.DataAccess.Entities;
 using Fabrity.CarExchange.DataAccess.Interfaces;
 using Fabrity.CarExchange.DataAccess.Repositories;
-using Fabrity.CarExchange.WebAPI.Dto;
+using Fabrity.CarExchange.Services.Dto;
+using Fabrity.CarExchange.Services.Exceptions;
+using Fabrity.CarExchange.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 
@@ -11,32 +13,26 @@ namespace Fabrity.CarExchange.WebAPI.Controllers
     [Route("api/cars")]
     public class CarsController : ControllerBase
     {
-        private readonly ICarsRepository _carsRepository;
+        private readonly ICarsService _carsService;
 
-        public CarsController(ICarsRepository carsRepository)
+        public CarsController(ICarsService carsService)
         {
-            _carsRepository = carsRepository;
+            _carsService = carsService;
         }
 
         [HttpGet("{id}")]
         public ActionResult Get(Guid id)
         {
-            var car = _carsRepository.Get(id);
-            if (car is null)
+            CarDetailsDto result;
+
+            try
+            {
+                result = _carsService.Get(id);
+            }
+            catch (CarNotFoundException)
             {
                 return NotFound();
             }
-
-            var result = new CarDetailsDto
-            {
-                Id = car.Id,
-                Brand = car.Brand,
-                Model = car.Model,
-                Year = car.Year,
-                Color = car.Color,
-                Engine = car.Engine,
-                FirstOwner = car.FirstOwner
-            };
 
             return Ok(result);
         }
@@ -44,71 +40,50 @@ namespace Fabrity.CarExchange.WebAPI.Controllers
         [HttpGet]
         public ActionResult GetAll()
         {
-            var cars = _carsRepository.Browse();
-            var result = cars.Select(c => new CarDto
-            {
-                Id = c.Id,
-                Brand = c.Brand,
-                Year = c.Year,
-                Model = c.Model
-            });
+            var result = _carsService.Browse();
             return Ok(result);
         }
 
         [HttpPost]
         public ActionResult Post([FromBody] CarRequestDto dto)
         {
-            var car = new Car
-            {
-                Id = Guid.NewGuid(),
-                Brand = dto.Brand,
-                Model = dto.Model,
-                Year = dto.Year,
-                Color = dto.Color,
-                Engine = dto.Engine,
-                FirstOwner = dto.FirstOwner,
-                Created = DateTime.UtcNow
-            };
-            _carsRepository.Add(car);
-            return Created($"/api/cars/{car.Id}", new CarDto
-            {
-                Id = car.Id,
-                Brand = car.Brand,
-                Year = car.Year,
-                Model = car.Model
-            });
+            var result = _carsService.Add(dto);
+            return Created($"/api/cars/{result.Id}", result);
         }
 
         [HttpPut("{id}")]
         public ActionResult Put(Guid id, [FromBody] CarRequestDto dto)
         {
-            var car = _carsRepository.Get(id);
-            if (car is null)
+            CarDetailsDto car;
+
+            try
             {
-                return BadRequest();
+                car = _carsService.Get(id);
+            }
+            catch (CarNotFoundException)
+            {
+                return NotFound();
             }
 
-            car.Brand = dto.Brand;
-            car.Model = dto.Model;
-            car.Year = dto.Year;
-            car.Color = dto.Color;
-            car.Engine = dto.Engine;
-            car.FirstOwner = dto.FirstOwner;
-            _carsRepository.Update(car);
-
+            _carsService.Update(id, dto);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
         public ActionResult Delete(Guid id)
         {
-            var existingCar = _carsRepository.Get(id);
-            if (existingCar is null)
+            CarDetailsDto car;
+
+            try
             {
-                return BadRequest();
+                car = _carsService.Get(id);
+            }
+            catch (CarNotFoundException)
+            {
+                return NotFound();
             }
 
-            _carsRepository.Delete(existingCar);
+            _carsService.Delete(id);
             return NoContent();
         }
     }
