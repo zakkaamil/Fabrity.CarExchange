@@ -13,6 +13,6 @@ namespace Fabrity.CarExchange.DataAccess.Interfaces
         IEnumerable<Car> Browse();
         void Add(Car car);
         void Update(Car car);
-        void Delete(Car carId);
+        void Delete(Car car);
     }
 }

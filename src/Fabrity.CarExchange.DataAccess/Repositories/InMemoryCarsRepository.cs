@@ -47,17 +47,17 @@ namespace Fabrity.CarExchange.DataAccess.Repositories
 
         public void Add(Car car)
         {
-            throw new NotImplementedException();
+            _cars.Add(car);
         }
 
         public void Update(Car car)
         {
-            throw new NotImplementedException();
+            car.LastUpdated = DateTime.UtcNow;
         }
 
-        public void Delete(Car carId)
+        public void Delete(Car car)
         {
-            throw new NotImplementedException();
+            _cars.Remove(car);
         }
     }
 }
